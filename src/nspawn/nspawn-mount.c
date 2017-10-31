@@ -421,15 +421,13 @@ int mount_sysfs(const char *dest, MountSettingsMask mount_settings) {
 
             r = mount_verbose(LOG_ERR, "sysfs", "/sys", "sysfs",
                               MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL);
-            if (r < 0) {
+            if (r < 0)
                     return r;
-            }
 
             r = mount_verbose(LOG_ERR, "/sys/devices/virtual/net", "/sys/devices/virtual/net", NULL,
                               MS_BIND, NULL);
-            if (r < 0) {
+            if (r < 0)
                     return r;
-            }
 
             return mount_verbose(LOG_ERR, NULL, "/sys", NULL,
                                  MS_BIND|MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REMOUNT, NULL);
