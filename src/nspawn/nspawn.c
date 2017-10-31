@@ -205,7 +205,7 @@ static const char *arg_container_service_name = "systemd-nspawn";
 static bool arg_notify_ready = false;
 static bool arg_use_cgns = true;
 static unsigned long arg_clone_ns_flags = CLONE_NEWIPC|CLONE_NEWPID|CLONE_NEWUTS;
-static MountSettingsMask arg_mount_settings = MOUNT_APPLY_APIVFS_RO;
+static MountSettingsMask arg_mount_settings = MOUNT_APPLY_APIVFS_RO|MOUNT_APPLY_APIVFS_SYS_AS_TMPFS;
 static void *arg_root_hash = NULL;
 static size_t arg_root_hash_size = 0;
 static char **arg_syscall_whitelist = NULL;
@@ -397,6 +397,23 @@ static void parse_mount_settings_env(void) {
 
         SET_FLAG(arg_mount_settings, MOUNT_APPLY_APIVFS_RO, r == 0);
         SET_FLAG(arg_mount_settings, MOUNT_APPLY_APIVFS_NETNS, false);
+}
+
+static void parse_sys_as_tmpfs_mount_settings_env(void) {
+        int r;
+        const char *e;
+
+        e = getenv("SYSTEMD_NSPAWN_API_VFS_SYS_AS_TMPFS");
+        if (!e)
+                return;
+
+        r = parse_boolean(e);
+        if (r < 0) {
+                log_warning_errno(r, "Failed to parse SYSTEMD_NSPAWN_API_VFS_SYS_AS_TMPFS from environment, ignoring.");
+                return;
+        }
+
+        SET_FLAG(arg_mount_settings, MOUNT_APPLY_APIVFS_SYS_AS_TMPFS, r);
 }
 
 static int parse_argv(int argc, char *argv[]) {
@@ -1106,6 +1123,7 @@ static int parse_argv(int argc, char *argv[]) {
                 arg_mount_settings |= MOUNT_APPLY_APIVFS_NETNS;
 
         parse_mount_settings_env();
+        parse_sys_as_tmpfs_mount_settings_env();
 
         if (!(arg_clone_ns_flags & CLONE_NEWPID) ||
             !(arg_clone_ns_flags & CLONE_NEWUTS)) {

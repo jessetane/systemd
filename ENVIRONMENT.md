@@ -45,6 +45,9 @@ systemd-nspawn:
   friends writable in the container. If set to "network", leave only
   /proc/sys/net writable.
 
+* `$SYSTEMD_NSPAWN_API_VFS_SYS_AS_TMPFS=0` — if set, do not mount /sys as
+  tmpfs.
+
 * `$SYSTEMD_NSPAWN_CONTAINER_SERVICE=…` — override the "service" name nspawn
   uses to register with machined. If unset defaults to "nspawn", but with this
   variable may be set to any other value.
